@@ -1,0 +1,38 @@
+{
+  "name": "google-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@bryntum/calendar": "npm:@bryntum/calendar-trial@^5.1.3",
+    "@bryntum/calendar-react": "^5.1.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3"
+  },
+  "scripts": {
+    "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' react-scripts start",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "babel-preset-react-app": "npm:@bryntum/babel-preset-react-app@^10.0.0",
+    "cross-env": "~7.0.2",
+    "sass": "~1.42.0"
+  }
+}

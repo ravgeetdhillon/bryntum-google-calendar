@@ -1,0 +1,22 @@
+/**
+ * Main application sass file that contains all the application styling
+ */
+
+// import bryntum theme
+@import '~@bryntum/calendar/calendar.stockholm.css';
+
+body,
+html {
+    margin         : 0;
+    display        : flex;
+    flex-direction : column;
+    height         : 100vh;
+    font-family    : Lato, "Open Sans", Helvetica, Arial, sans-serif;
+    font-size      : 14px;
+}
+
+#container {
+    flex    : 1 1 100%;
+    display : flex;
+}
+
