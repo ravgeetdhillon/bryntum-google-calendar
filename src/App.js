@@ -3,12 +3,8 @@ import { BryntumCalendar } from "@bryntum/calendar-react";
 import { gapi } from "gapi-script";
 import "./App.scss";
 
-const apiKey = process.env.REACT_APP_GOOGLE_API_KEY;
+const accessToken = process.env.REACT_APP_CREDENTIALS_ACCESS_TOKEN;
 const calendarID = process.env.REACT_APP_CALENDAR_ID;
-
-const calendarConfig = {
-  date: new Date(),
-};
 
 export default function App() {
   const [events, setEvents] = useState([]);
@@ -16,15 +12,14 @@ export default function App() {
   const getEvents = () => {
     function initiate() {
       gapi.client
-        .init({
-          apiKey: apiKey,
-        })
-        .then(function () {
-          return gapi.client.request({
-            path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-              calendarID
-            )}/events`,
-          });
+        .request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+            calendarID
+          )}/events`,
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
         })
         .then(
           (response) => {
@@ -33,8 +28,8 @@ export default function App() {
               events.map((event) => ({
                 id: event.id,
                 name: event.summary,
-                startDate: event.start.date,
-                endDate: event.end.date,
+                startDate: event.start?.dateTime,
+                endDate: event.end?.dateTime,
               }))
             );
           },
@@ -46,9 +41,99 @@ export default function App() {
     gapi.load("client", initiate);
   };
 
+  const addEvent = (event) => {
+    function initiate() {
+      gapi.client
+        .request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+            calendarID
+          )}/events`,
+          method: "POST",
+          body: event,
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then(
+          (response) => {
+            return response;
+          },
+          function (err) {
+            console.error(err);
+          }
+        );
+    }
+    gapi.load("client", initiate);
+  };
+
+  const editEvent = (eventId, event) => {
+    function initiate() {
+      gapi.client
+        .request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+            calendarID
+          )}/events/${eventId}`,
+          method: "PATCH",
+          body: event,
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then(
+          (response) => {
+            return response;
+          },
+          function (err) {
+            console.error(err);
+          }
+        );
+    }
+    gapi.load("client", initiate);
+  };
+
+  const handleEventUpdate = ({ eventRecord, type }) => {
+    const event = {
+      summary: eventRecord.data.name,
+      location: "",
+      start: {
+        dateTime: eventRecord.data.startDate,
+        timeZone: "Asia/Kolkata",
+      },
+      end: {
+        dateTime: eventRecord.data.endDate,
+        timeZone: "Asia/Kolkata",
+      },
+    };
+
+    switch (type) {
+      case "dragresizeend":
+        editEvent(eventRecord.data.realEventId, event);
+        break;
+      case "aftereventsave":
+        if (eventRecord.data.id.includes("_generatedc_")) {
+          addEvent(event);
+        } else {
+          editEvent(eventRecord.data.id, event);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     getEvents();
   }, []);
 
-  return <BryntumCalendar events={events} {...calendarConfig} />;
+  return (
+    <BryntumCalendar
+      events={events}
+      date={new Date()}
+      draggable
+      onAfterEventSave={handleEventUpdate}
+      onDragResizeEnd={handleEventUpdate}
+    />
+  );
 }
